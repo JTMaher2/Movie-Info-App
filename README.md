@@ -1,0 +1,1 @@
+This is an Android app that allows people to view popular and top rated movies on TheMovieDB.org.

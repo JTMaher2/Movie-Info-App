@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">MovieViewer</string>
+    <string name="action_settings">Settings</string>
+    <string name="web_service_url">http://api.themoviedb.org/3/movie/</string>
+    <string name="invalid_url">Invalid URL</string>
+    <string name="movie_image">A graphical representation of the movie</string>
+    <string name="rating">Rating: %s</string>
+    <string name="title">%s</string>
+    <string name="num_ratings">Number of Ratings: %s</string>
+    <string name="popularity">Popularity: %s</string>
+    <string name="hint_text">Enter title (e.g, Mad Max: Fury Road)</string>
+    <string name="read_error">Unable to read movie data</string>
+    <string name="connect_error">Unable to connect to TheMovieDB.org</string>
+    <string name="popular">popular</string>
+    <string name="top_rated">top_rated</string>
+</resources>
