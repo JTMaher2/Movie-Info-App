@@ -13,4 +13,7 @@
     <string name="connect_error">Unable to connect to TheMovieDB.org</string>
     <string name="popular">popular</string>
     <string name="top_rated">top_rated</string>
+    <string name="movie_poster">movie poster</string>
+    <string name="year">%d</string>
+    <string name="overview">%s</string>
 </resources>
