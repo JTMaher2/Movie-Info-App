@@ -2,14 +2,12 @@
 // Displays information about specified title
 package com.example.movieviewer;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.GridView;
 import android.widget.Switch;
@@ -34,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
     private MovieArrayAdapter movieArrayAdapter;
     private GridView movieGridView; // displays movie info
 
+    // CoordinatorLayout for displaying movies
+    private View coordinatorLayout = findViewById(R.id.coordinatorLayout);
+
     // configure Toolbar, ListView and FAB
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,13 +44,13 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // create ArrayAdapter to bind movieList to the movieListView
+        // create switch to toggle between popular and top-rated
+        final Switch popularOrTop = (Switch) findViewById(R.id.popularOrTop);
+
+        // create ArrayAdapter to bind movieList to the movieGridView
         movieGridView = (GridView) findViewById(R.id.movieGridView);
         movieArrayAdapter = new MovieArrayAdapter(this, movieList);
         movieGridView.setAdapter(movieArrayAdapter);
-
-        // configure switch to toggle between popular and top-rated
-        final Switch popularOrTop = (Switch) findViewById(R.id.popularOrTop);
 
         if (popularOrTop != null) {
             popularOrTop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -61,24 +62,18 @@ public class MainActivity extends AppCompatActivity {
                     else
                         url = createURL(popularOrTop.getTextOff().toString());
 
-                    // hide keyboard and initiate a GetMovieTask to download movie data from
-                    // TheMovieDB.org in a separate thread
+                    // initiate a GetMovieTask to download movie data from TheMovieDB.org in a
+                    // separate thread
                     if (url != null) {
                         GetMovieTask getMovieTask = new GetMovieTask();
                         getMovieTask.execute(url);
-                    } else {
-                        Snackbar.make(findViewById(R.id.coordinatorLayout), R.string.invalid_url, Snackbar.LENGTH_LONG).show();
-                    }
+                    } else
+                        if (coordinatorLayout != null)
+                            Snackbar.make(coordinatorLayout, R.string.invalid_url,
+                                          Snackbar.LENGTH_LONG).show();
                 }
             });
         }
-    }
-
-    // programmatically dismiss keyboard when user touches FAB
-    private void dismissKeyboard(View view) {
-        InputMethodManager imm =
-                (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     // create themoviedb.org web service URL using title
@@ -121,23 +116,28 @@ public class MainActivity extends AppCompatActivity {
                         while ((line = reader.readLine()) != null)
                             builder.append(line);
                     } catch (IOException e) {
-                        Snackbar.make(findViewById(R.id.coordinatorLayout),
-                                      R.string.read_error, Snackbar.LENGTH_LONG).show();
+                        if (coordinatorLayout != null)
+                            Snackbar.make(coordinatorLayout, R.string.read_error,
+                                          Snackbar.LENGTH_LONG).show();
+
                         e.printStackTrace();
                     }
 
                     return new JSONObject(builder.toString());
                 } else {
-                    Snackbar.make(findViewById(R.id.coordinatorLayout),
-                                  R.string.connect_error,
-                                  Snackbar.LENGTH_LONG).show();
+                    if (coordinatorLayout != null)
+                        Snackbar.make(coordinatorLayout, R.string.connect_error,
+                                      Snackbar.LENGTH_LONG).show();
                 }
             } catch (Exception e) {
-                Snackbar.make(findViewById(R.id.coordinatorLayout),
-                              R.string.connect_error, Snackbar.LENGTH_LONG).show();
+                if (coordinatorLayout != null)
+                    Snackbar.make(coordinatorLayout, R.string.connect_error, Snackbar.LENGTH_LONG)
+                            .show();
+
                 e.printStackTrace();
             } finally {
-                connection.disconnect(); // close the HttpURLConnection
+                if (connection != null)
+                    connection.disconnect(); // close the HttpURLConnection
             }
 
             return null;

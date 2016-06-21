@@ -95,7 +95,8 @@ class MovieArrayAdapter extends ArrayAdapter<Movie> {
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                connection.disconnect(); // close the HttpURLConnection
+                if (connection != null)
+                    connection.disconnect(); // close the HttpURLConnection
             }
 
             return bitmap;
