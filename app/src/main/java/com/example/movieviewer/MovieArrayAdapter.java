@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
+import com.squareup.picasso.Picasso;
+
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -25,7 +27,7 @@ class MovieArrayAdapter extends ArrayAdapter<Movie> {
     }
 
     // stores already downloaded Bitmaps for reuse
-    private HashMap<String, Bitmap> bitmaps = new HashMap<>();
+    //private HashMap<String, Bitmap> bitmaps = new HashMap<>();
 
     // constructor to initialize superclass inherited members
     public MovieArrayAdapter(Context context, List<Movie> movies) {
@@ -40,7 +42,7 @@ class MovieArrayAdapter extends ArrayAdapter<Movie> {
 
         ViewHolder viewHolder; // object that references list item's views
 
-        // check for reusable ViewHolder from a ListView item that scrolled offscreen; otherwise,
+        // check for reusable ViewHolder from a GridView item that scrolled offscreen; otherwise,
         // create a new ViewHolder
         if (convertView == null) { // no reusable ViewHolder, so create one
             viewHolder = new ViewHolder();
@@ -54,18 +56,21 @@ class MovieArrayAdapter extends ArrayAdapter<Movie> {
 
         // if movie poster icon already downloaded, use it;
         // otherwise, download icon in a separate thread
-        if (bitmaps.containsKey(movie.iconURL)) {
+        /*if (bitmaps.containsKey(movie.iconURL)) {
             viewHolder.posterImageView.setImageBitmap(bitmaps.get(movie.iconURL));
         } else {
             // download and display movie poster image
             new LoadImageTask(viewHolder.posterImageView).execute(movie.iconURL);
-        }
+
+            movie.poster = bitmaps.get(movie.iconURL); // store bitmap in movie object
+        }*/
+        Picasso.with(getContext()).load(movie.poster_url).into(viewHolder.posterImageView);
 
         return convertView; // return completed list item to display
     }
 
-    // AsyncTask to load weather condition icons in a separate thread
-    private class LoadImageTask extends AsyncTask<String, Void, Bitmap> {
+    // AsyncTask to load movie poster icons in a separate thread
+    /*private class LoadImageTask extends AsyncTask<String, Void, Bitmap> {
         private ImageView imageView; // displays the thumbnail
 
         // store ImageView on which to set the downloaded Bitmap
@@ -107,5 +112,5 @@ class MovieArrayAdapter extends ArrayAdapter<Movie> {
         protected void onPostExecute(Bitmap bitmap) {
             imageView.setImageBitmap(bitmap);
         }
-    }
+    }*/
 }

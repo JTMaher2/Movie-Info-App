@@ -4,7 +4,7 @@
     <string name="web_service_url">http://api.themoviedb.org/3/movie/</string>
     <string name="invalid_url">Invalid URL</string>
     <string name="movie_image">A graphical representation of the movie</string>
-    <string name="rating">Rating: %s</string>
+    <string name="rating">%1$s/10</string>
     <string name="title">%s</string>
     <string name="num_ratings">Number of Ratings: %s</string>
     <string name="popularity">Popularity: %s</string>
@@ -16,4 +16,8 @@
     <string name="movie_poster">movie poster</string>
     <string name="year">%d</string>
     <string name="overview">%s</string>
+    <string name="trailers">Trailers</string>
+    <string name="mark_as_favorite">Mark As Favorite</string>
+    <string name="movie_detail_url">http://api.themoviedb.org/3/movie/</string>
+    <string name="runtime">%1$dmin</string>
 </resources>

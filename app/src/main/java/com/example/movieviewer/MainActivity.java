@@ -2,12 +2,14 @@
 // Displays information about specified title
 package com.example.movieviewer;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.GridView;
 import android.widget.Switch;
@@ -32,12 +34,11 @@ public class MainActivity extends AppCompatActivity {
     private MovieArrayAdapter movieArrayAdapter;
     private GridView movieGridView; // displays movie info
 
-    // CoordinatorLayout for displaying movies
-    private View coordinatorLayout = findViewById(R.id.coordinatorLayout);
-
-    // configure Toolbar, ListView and FAB
+    // configure Toolbar and GridView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        final View coordinatorLayout = findViewById(R.id.coordinatorLayout);
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -51,6 +52,15 @@ public class MainActivity extends AppCompatActivity {
         movieGridView = (GridView) findViewById(R.id.movieGridView);
         movieArrayAdapter = new MovieArrayAdapter(this, movieList);
         movieGridView.setAdapter(movieArrayAdapter);
+        movieGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Movie movie = (Movie) adapterView.getItemAtPosition(i);
+                Intent intent = new Intent(view.getContext(), MovieDetail.class);
+                intent.putExtra("com.example.movieviewer.Movie", movie);
+                startActivity(intent);
+            }
+        });
 
         if (popularOrTop != null) {
             popularOrTop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -70,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                     } else
                         if (coordinatorLayout != null)
                             Snackbar.make(coordinatorLayout, R.string.invalid_url,
-                                          Snackbar.LENGTH_LONG).show();
+                                    Snackbar.LENGTH_LONG).show();
                 }
             });
         }
@@ -93,9 +103,10 @@ public class MainActivity extends AppCompatActivity {
         return null; // URL was malformed
     }
 
-    // makes the REST web service call to get movie data,
-    // and saves the data to a local HTML file
+    // makes the REST web service call to get movie data
     private class GetMovieTask extends AsyncTask<URL, Void, JSONObject> {
+        View coordinatorLayout = findViewById(R.id.coordinatorLayout);
+
         @Override
         protected JSONObject doInBackground(URL... params) {
             HttpURLConnection connection = null;
@@ -143,11 +154,11 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
 
-        // process JSON response and update ListView
+        // process JSON response and update GridView
         @Override
         protected void onPostExecute(JSONObject movies) {
             convertJSONtoArrayList(movies); // repopulate movieList
-            movieArrayAdapter.notifyDataSetChanged(); // rebind to ListView
+            movieArrayAdapter.notifyDataSetChanged(); // rebind to GridView
             movieGridView.smoothScrollToPosition(0); // scroll to top
         }
     }
@@ -165,10 +176,10 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject movie = list.getJSONObject(i); // get one movie's data
 
                 // add new Movie object to movieList
-                movieList.add(new Movie(movie.getString("title"), movie.getDouble("vote_average"),
-                                        movie.getInt("vote_count"), movie.getDouble("popularity"),
-                                        movie.getString("overview"),
-                                        movie.getString("poster_path")));
+                movieList.add(new Movie(movie.getInt("id"), movie.getDouble("vote_average"),
+                                        movie.getString("title"), movie.getString("poster_path"),
+                                        movie.getString("release_date"),
+                                        movie.getString("overview")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
