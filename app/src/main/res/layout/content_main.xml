@@ -13,12 +13,24 @@
     tools:showIn="@layout/activity_main"
     android:orientation="vertical">
 
-    <Switch
+    <RadioGroup
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/popularOrTop"
-        android:textOn="@string/popular"
-        android:textOff="@string/top_rated" />
+        android:id="@+id/displayOptions"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/popularOption"
+            android:text="@string/popular"/>
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/topRatedOption"
+            android:text="@string/top_rated"/>
+    </RadioGroup>
 
     <GridView
         android:layout_width="match_parent"

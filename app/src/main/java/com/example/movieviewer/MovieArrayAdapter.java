@@ -34,13 +34,13 @@ class MovieArrayAdapter extends ArrayAdapter<Movie> {
         super(context, -1, movies);
     }
 
-    // creates the custom views for the ListView's items
+    // creates the custom views for the GridView's items
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // get Movie object for this specified ListView position
+        // get Movie object for this specified GridView position
         Movie movie = getItem(position);
 
-        ViewHolder viewHolder; // object that references list item's views
+        ViewHolder viewHolder; // object that references grid item's views
 
         // check for reusable ViewHolder from a GridView item that scrolled offscreen; otherwise,
         // create a new ViewHolder
@@ -50,7 +50,7 @@ class MovieArrayAdapter extends ArrayAdapter<Movie> {
             convertView = inflater.inflate(R.layout.list_item, parent, false);
             viewHolder.posterImageView = (ImageView) convertView.findViewById(R.id.movieImageView);
             convertView.setTag(viewHolder);
-        } else { // reuse existing ViewHolder stored as the list item's tag
+        } else { // reuse existing ViewHolder stored as the grid item's tag
             viewHolder = (ViewHolder) convertView.getTag();
         }
 

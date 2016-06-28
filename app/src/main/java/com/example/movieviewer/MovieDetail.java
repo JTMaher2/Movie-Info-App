@@ -1,15 +1,20 @@
 package com.example.movieviewer;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,9 +23,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class MovieDetail extends AppCompatActivity {
     private Movie movie;
+
+    // List of Trailer objects representing the search query
+    private ArrayList<Trailer> trailerList = new ArrayList<>();
+
+    // ArrayAdapter for binding Trailer objects to a ListView
+    private TrailerArrayAdapter trailerArrayAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +59,9 @@ public class MovieDetail extends AppCompatActivity {
                 yearTextView.setText(movie.release_date.substring(0, 4));
 
             // do separate JSON request for runtime
-            URL url = createURL();
+            URL url = createURL("details");
             if (url != null) {
-                GetMovieDetailsTask getMovieDetailsTask = new GetMovieDetailsTask();
+                GetMovieDataTask getMovieDetailsTask = new GetMovieDataTask();
                 getMovieDetailsTask.execute(url);
             } else
                 if (linearLayout != null)
@@ -62,11 +74,36 @@ public class MovieDetail extends AppCompatActivity {
             TextView overviewTextView = (TextView) findViewById(R.id.overviewTextView);
             if (overviewTextView != null)
                 overviewTextView.setText(movie.overview);
+
+            ListView trailerListView = (ListView) findViewById(R.id.trailerListView);
+            trailerArrayAdapter = new TrailerArrayAdapter(MovieDetail.this, trailerList);
+            if (trailerListView != null) {
+                trailerListView.setAdapter(trailerArrayAdapter);
+
+                // open video when clicked
+                trailerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        Trailer trailer = (Trailer) adapterView.getItemAtPosition(i);
+                        startActivity(new Intent(Intent.ACTION_VIEW,
+                                                 Uri.parse(trailer.trailerURL)));
+                    }
+                });
+            }
+
+            // do separate JSON request for trailers
+            url = createURL("trailers");
+            if (url != null) {
+                GetMovieDataTask getMovieTrailersTask = new GetMovieDataTask();
+                getMovieTrailersTask.execute(url);
+            } else
+                if (linearLayout != null)
+                    Snackbar.make(linearLayout, R.string.invalid_url, Snackbar.LENGTH_LONG).show();
         }
     }
 
     // makes the REST web service call to get detailed movie data
-    private class GetMovieDetailsTask extends AsyncTask<URL, Void, JSONObject> {
+    private class GetMovieDataTask extends AsyncTask<URL, Void, JSONObject> {
         View coordinatorLayout = findViewById(R.id.coordinatorLayout);
 
         @Override
@@ -118,25 +155,63 @@ public class MovieDetail extends AppCompatActivity {
 
         // display runtime
         @Override
-        protected void onPostExecute(JSONObject details) {
+        protected void onPostExecute(JSONObject data) {
             try {
-                TextView runtimeTextView = (TextView) findViewById(R.id.runtimeTextView);
-                if (runtimeTextView != null)
-                    runtimeTextView.setText(getString(R.string.runtime, details.getInt("runtime")));
+                // if details
+                if (data.has("runtime")) {
+                    TextView runtimeTextView = (TextView) findViewById(R.id.runtimeTextView);
+                    if (runtimeTextView != null)
+                        runtimeTextView.setText(getString(R.string.runtime, data.getInt("runtime")));
+                } else { // trailers
+                    convertJSONtoArrayList(data);
+                    trailerArrayAdapter.notifyDataSetChanged(); // rebind to ListView
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    // create Trailer objects from JSONObject containing the trailer list
+    private void convertJSONtoArrayList(JSONObject trailers) {
+        trailerList.clear(); // clear old trailer data
+
+        try {
+            // get trailer list's "results" JSONArray
+            JSONArray list = trailers.getJSONArray("results");
+
+            // convert each element of list to a Trailer object
+            for (int i = 0; i < list.length(); ++i) {
+                JSONObject trailer = list.getJSONObject(i); // get one trailer's data
+
+                // add new Trailer object to trailerList
+                trailerList.add(new Trailer(trailer.getString("name"), trailer.getString("site"),
+                                            trailer.getString("key")));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     // create themoviedb.org details URL
-    private URL createURL() {
+    private URL createURL(String type) {
         String apiKey = BuildConfig.TMDB_API_KEY,
                 baseUrl = getString(R.string.movie_detail_url);
 
         try {
             // create URL for specified movie
-            String urlString = baseUrl + movie.id + "?api_key=" + apiKey;
+            String urlString;
+
+            switch (type) {
+                case "details":
+                    urlString = baseUrl + movie.id + "?api_key=" + apiKey;
+                    break;
+                case "trailers":
+                    urlString = baseUrl + movie.id + "/videos?api_key=" + apiKey;
+                    break;
+                default:
+                    throw new RuntimeException("unknown URL type");
+            }
 
             return new URL(urlString);
         } catch (Exception e) {

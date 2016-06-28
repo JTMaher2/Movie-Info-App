@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:entries="@array/display_options"
+        android:entryValues="@array/display_options"
+        android:key="pref_display"
+        android:title="@string/display"
+        android:summary="@string/display_description"
+        android:persistent="true"
+        android:defaultValue="popular" />
+</PreferenceScreen>

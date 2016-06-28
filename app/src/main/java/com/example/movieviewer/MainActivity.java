@@ -3,16 +3,25 @@
 package com.example.movieviewer;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.GridView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     // List of Movie objects representing the search query
     private ArrayList<Movie> movieList = new ArrayList<>();
 
-    // ArrayAdapter for binding Movie objects to a ListView
+    // ArrayAdapter for binding Movie objects to a GridView
     private MovieArrayAdapter movieArrayAdapter;
     private GridView movieGridView; // displays movie info
 
@@ -45,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // create switch to toggle between popular and top-rated
-        final Switch popularOrTop = (Switch) findViewById(R.id.popularOrTop);
+        // create RadioGroup to toggle between popular, top-rated, and favorites
+        final RadioGroup displayOptions = (RadioGroup) findViewById(R.id.displayOptions);
 
         // create ArrayAdapter to bind movieList to the movieGridView
         movieGridView = (GridView) findViewById(R.id.movieGridView);
@@ -62,38 +71,39 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        if (popularOrTop != null) {
-            popularOrTop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (displayOptions != null) {
+            displayOptions.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                    RadioButton selectedButton = (RadioButton) findViewById(i);
                     URL url;
 
-                    if (isChecked)
-                        url = createURL(popularOrTop.getTextOn().toString());
-                    else
-                        url = createURL(popularOrTop.getTextOff().toString());
+                    if (selectedButton != null) {
+                        url = createURL(selectedButton.getText().toString());
 
-                    // initiate a GetMovieTask to download movie data from TheMovieDB.org in a
-                    // separate thread
-                    if (url != null) {
-                        GetMovieTask getMovieTask = new GetMovieTask();
-                        getMovieTask.execute(url);
-                    } else
-                        if (coordinatorLayout != null)
+                        // initiate a GetMovieTask to download movie data from TheMovieDB.org in a
+                        // separate thread
+                        if (url != null) {
+                            GetMovieTask getMovieTask = new GetMovieTask();
+                            getMovieTask.execute(url);
+                        } else if (coordinatorLayout != null)
                             Snackbar.make(coordinatorLayout, R.string.invalid_url,
                                     Snackbar.LENGTH_LONG).show();
+                    }
+
                 }
             });
         }
     }
 
     // create themoviedb.org web service URL using title
-    private URL createURL(String title) {
+    private URL createURL(String displayOption) {
         String apiKey = BuildConfig.TMDB_API_KEY,
                baseUrl = getString(R.string.web_service_url);
 
         try {
             // create URL for specified movie
-            String urlString = baseUrl + URLEncoder.encode(title, "UTF-8") + "?api_key=" + apiKey;
+            String urlString = baseUrl + URLEncoder.encode(displayOption, "UTF-8") + "?api_key=" + apiKey;
 
             return new URL(urlString);
         } catch (Exception e) {
