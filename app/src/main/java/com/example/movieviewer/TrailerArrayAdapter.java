@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class TrailerArrayAdapter extends ArrayAdapter<Trailer> {
+class TrailerArrayAdapter extends ArrayAdapter<Trailer> {
     // class for reusing views as list items scroll off and onto the screen
     private static class ViewHolder {
         ImageView playButton;

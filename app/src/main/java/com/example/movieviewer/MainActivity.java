@@ -1,27 +1,19 @@
 // MainActivity.java
-// Displays information about specified title
+// Displays a list of popular or top rated movies
 package com.example.movieviewer;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.CompoundButton;
 import android.widget.GridView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Switch;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,8 +28,10 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    private CoordinatorLayout coordinatorLayout;
+
     // List of Movie objects representing the search query
-    private ArrayList<Movie> movieList = new ArrayList<>();
+    private final ArrayList<Movie> movieList = new ArrayList<>();
 
     // ArrayAdapter for binding Movie objects to a GridView
     private MovieArrayAdapter movieArrayAdapter;
@@ -46,8 +40,6 @@ public class MainActivity extends AppCompatActivity {
     // configure Toolbar and GridView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        final View coordinatorLayout = findViewById(R.id.coordinatorLayout);
-
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -58,15 +50,22 @@ public class MainActivity extends AppCompatActivity {
         final RadioGroup displayOptions = (RadioGroup) findViewById(R.id.displayOptions);
 
         // create ArrayAdapter to bind movieList to the movieGridView
-        movieGridView = (GridView) findViewById(R.id.movieGridView);
         movieArrayAdapter = new MovieArrayAdapter(this, movieList);
-        movieGridView.setAdapter(movieArrayAdapter);
+
+        movieGridView = (GridView) findViewById(R.id.movieGridView);
+
+        if (movieGridView != null) {
+            movieGridView.setAdapter(movieArrayAdapter);
+        }
+
         movieGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Movie movie = (Movie) adapterView.getItemAtPosition(i);
                 Intent intent = new Intent(view.getContext(), MovieDetail.class);
+
                 intent.putExtra("com.example.movieviewer.Movie", movie);
+
                 startActivity(intent);
             }
         });
@@ -79,16 +78,17 @@ public class MainActivity extends AppCompatActivity {
                     URL url;
 
                     if (selectedButton != null) {
-                        url = createURL(selectedButton.getText().toString());
+                        String buttonText = selectedButton.getText().toString();
+
+                        url = createURL(buttonText);
 
                         // initiate a GetMovieTask to download movie data from TheMovieDB.org in a
                         // separate thread
                         if (url != null) {
                             GetMovieTask getMovieTask = new GetMovieTask();
                             getMovieTask.execute(url);
-                        } else if (coordinatorLayout != null)
-                            Snackbar.make(coordinatorLayout, R.string.invalid_url,
-                                    Snackbar.LENGTH_LONG).show();
+                        } else
+                            Snackbar.make(coordinatorLayout, R.string.invalid_url, Snackbar.LENGTH_LONG).show();
                     }
 
                 }
@@ -100,6 +100,10 @@ public class MainActivity extends AppCompatActivity {
     private URL createURL(String displayOption) {
         String apiKey = BuildConfig.TMDB_API_KEY,
                baseUrl = getString(R.string.web_service_url);
+
+        // in order to be compatible with API,
+        // string must be lower case and have underscores instead of spaces
+        displayOption = displayOption.toLowerCase().replace(' ', '_');
 
         try {
             // create URL for specified movie
@@ -115,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
     // makes the REST web service call to get movie data
     private class GetMovieTask extends AsyncTask<URL, Void, JSONObject> {
-        View coordinatorLayout = findViewById(R.id.coordinatorLayout);
+        final View coordinatorLayout = findViewById(R.id.coordinatorLayout);
 
         @Override
         protected JSONObject doInBackground(URL... params) {
@@ -166,8 +170,8 @@ public class MainActivity extends AppCompatActivity {
 
         // process JSON response and update GridView
         @Override
-        protected void onPostExecute(JSONObject movies) {
-            convertJSONtoArrayList(movies); // repopulate movieList
+        protected void onPostExecute(JSONObject movieInfo) {
+            convertJSONtoArrayList(movieInfo); // repopulate movieList
             movieArrayAdapter.notifyDataSetChanged(); // rebind to GridView
             movieGridView.smoothScrollToPosition(0); // scroll to top
         }

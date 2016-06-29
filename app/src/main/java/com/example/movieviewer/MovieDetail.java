@@ -29,7 +29,7 @@ public class MovieDetail extends AppCompatActivity {
     private Movie movie;
 
     // List of Trailer objects representing the search query
-    private ArrayList<Trailer> trailerList = new ArrayList<>();
+    private final ArrayList<Trailer> trailerList = new ArrayList<>();
 
     // ArrayAdapter for binding Trailer objects to a ListView
     private TrailerArrayAdapter trailerArrayAdapter;
@@ -104,7 +104,7 @@ public class MovieDetail extends AppCompatActivity {
 
     // makes the REST web service call to get detailed movie data
     private class GetMovieDataTask extends AsyncTask<URL, Void, JSONObject> {
-        View coordinatorLayout = findViewById(R.id.coordinatorLayout);
+        final View coordinatorLayout = findViewById(R.id.coordinatorLayout);
 
         @Override
         protected JSONObject doInBackground(URL... params) {

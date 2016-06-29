@@ -2,8 +2,9 @@ package com.example.movieviewer;
 
 import android.util.Log;
 
-public class Trailer {
-    protected String name, trailerURL;
+class Trailer {
+    final String name;
+    String trailerURL;
 
     public Trailer(String name, String site, String key) {
         this.name = name;

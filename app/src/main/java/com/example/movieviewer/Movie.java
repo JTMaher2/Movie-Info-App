@@ -7,11 +7,10 @@ import android.os.Parcelable;
 import java.text.NumberFormat;
 
 public class Movie implements Parcelable {
-    protected int id;
-    protected String title, poster_url, release_date, vote_average, overview;
-    protected Trailer[] trailers;
+    int id;
+    String title, poster_url, release_date, vote_average, overview;
 
-    public Movie(Parcel in) {
+    private Movie(Parcel in) {
         readFromParcel(in);
     }
 
