@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -34,9 +35,15 @@ public class MovieDetail extends AppCompatActivity {
     // ArrayAdapter for binding Trailer objects to a ListView
     private TrailerArrayAdapter trailerArrayAdapter;
 
+    private FavoritesDataSource dataSource;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         final View linearLayout = findViewById(R.id.linearLayout);
+
+        // for adding favorites
+        dataSource = new FavoritesDataSource(this);
+        dataSource.open();
 
         super.onCreate(savedInstanceState);
 
@@ -69,7 +76,31 @@ public class MovieDetail extends AppCompatActivity {
 
             TextView ratingTextView = (TextView) findViewById(R.id.ratingTextView);
             if (ratingTextView != null)
-                ratingTextView.setText(getString(R.string.rating, movie.vote_average));
+                ratingTextView.setText(getString(R.string.rating, movie.rating));
+
+            // favorite button
+            final Button favoriteButton = (Button) findViewById(R.id.favoriteButton);
+
+            final boolean isFavorite = dataSource.favoriteExists(movie.id); // is movie a favorite?
+
+            if (favoriteButton != null) {
+                favoriteButton.setText(isFavorite ? R.string.favorite_button_pressed :
+                                                    R.string.favorite_button_unpressed);
+
+                favoriteButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (isFavorite) { // allow unfavorite
+                            dataSource.deleteFavorite(movie);
+                            favoriteButton.setText(R.string.favorite_button_unpressed);
+                        } else { // allow favorite
+                            dataSource.createFavorite(movie.id, movie.title, movie.poster_url,
+                                    movie.release_date, movie.rating, movie.overview);
+                            favoriteButton.setText(R.string.favorite_button_pressed);
+                        }
+                    }
+                });
+            }
 
             TextView overviewTextView = (TextView) findViewById(R.id.overviewTextView);
             if (overviewTextView != null)
@@ -219,5 +250,17 @@ public class MovieDetail extends AppCompatActivity {
         }
 
         return null; // URL was malformed
+    }
+
+    @Override
+    protected void onResume() {
+        dataSource.open();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        dataSource.close();
+        super.onPause();
     }
 }

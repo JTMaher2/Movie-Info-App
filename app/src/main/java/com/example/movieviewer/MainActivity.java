@@ -9,6 +9,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -31,11 +32,15 @@ public class MainActivity extends AppCompatActivity {
     private CoordinatorLayout coordinatorLayout;
 
     // List of Movie objects representing the search query
-    private final ArrayList<Movie> movieList = new ArrayList<>();
+    private ArrayList<Movie> movieList = new ArrayList<>();
 
     // ArrayAdapter for binding Movie objects to a GridView
     private MovieArrayAdapter movieArrayAdapter;
     private GridView movieGridView; // displays movie info
+
+    private FavoritesDataSource favoritesDataSource;
+
+    private boolean displayFavorites;
 
     // configure Toolbar and GridView
     @Override
@@ -70,6 +75,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // for retrieving favorites from database
+        favoritesDataSource = new FavoritesDataSource(MainActivity.this);
+        favoritesDataSource.open();
+
         if (displayOptions != null) {
             displayOptions.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                 @Override
@@ -80,15 +89,28 @@ public class MainActivity extends AppCompatActivity {
                     if (selectedButton != null) {
                         String buttonText = selectedButton.getText().toString();
 
-                        url = createURL(buttonText);
+                        if (!buttonText.equals("Favorites")) { // not favorites, so okay to perform JSON request
+                            displayFavorites = false;
 
-                        // initiate a GetMovieTask to download movie data from TheMovieDB.org in a
-                        // separate thread
-                        if (url != null) {
-                            GetMovieTask getMovieTask = new GetMovieTask();
-                            getMovieTask.execute(url);
-                        } else
-                            Snackbar.make(coordinatorLayout, R.string.invalid_url, Snackbar.LENGTH_LONG).show();
+                            url = createURL(buttonText);
+
+                            // initiate a GetMovieTask to download movie data from TheMovieDB.org in a
+                            // separate thread
+                            if (url != null) {
+                                GetMovieTask getMovieTask = new GetMovieTask();
+                                getMovieTask.execute(url);
+                            } else
+                                Snackbar.make(coordinatorLayout, R.string.invalid_url, Snackbar.LENGTH_LONG).show();
+                        } else { // favorites, so do not perform JSON request, and instead access the database
+                            displayFavorites = true;
+
+                            movieList.clear();
+                            movieList.addAll(favoritesDataSource.getAllFavorites());
+
+                            movieArrayAdapter.notifyDataSetChanged(); // rebind to GridView
+
+                            movieGridView.smoothScrollToPosition(0); // scroll to top
+                        }
                     }
 
                 }
@@ -190,13 +212,27 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject movie = list.getJSONObject(i); // get one movie's data
 
                 // add new Movie object to movieList
-                movieList.add(new Movie(movie.getInt("id"), movie.getDouble("vote_average"),
-                                        movie.getString("title"), movie.getString("poster_path"),
-                                        movie.getString("release_date"),
-                                        movie.getString("overview")));
+                movieList.add(new Movie(movie.getInt("id"), movie.getString("title"),
+                                        movie.getString("poster_path"), movie.getString("release_date"),
+                                        movie.getDouble("vote_average"), movie.getString("overview")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // if the user was previously on the favorites selection, update it
+        if (displayFavorites) {
+            movieList.clear();
+            movieList.addAll(favoritesDataSource.getAllFavorites());
+
+            movieArrayAdapter.notifyDataSetChanged(); // rebind to GridView
+
+            movieGridView.smoothScrollToPosition(0); // scroll to top
         }
     }
 }

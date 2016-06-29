@@ -13,4 +13,7 @@
     <string name="movie_detail_url">http://api.themoviedb.org/3/movie/</string>
     <string name="runtime">%1$dmin</string>
     <string name="play_button">Play button</string>
+    <string name="favorites">Favorites</string>
+    <string name="favorite_button_unpressed">MARK AS FAVORITE</string>
+    <string name="favorite_button_pressed">FAVORITE</string>
 </resources>
