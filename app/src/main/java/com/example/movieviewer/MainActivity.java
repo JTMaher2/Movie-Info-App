@@ -81,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
 
         // for retrieving favorites from database
         favoritesDataSource = new FavoritesDataSource(MainActivity.this);
-        favoritesDataSource.open();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -106,12 +105,16 @@ public class MainActivity extends AppCompatActivity {
             } else { // favorites, so do not perform JSON request, and instead access the database
                 displayFavorites = true;
 
+                favoritesDataSource.open();
+
                 movieList.clear();
                 movieList.addAll(favoritesDataSource.getAllFavorites());
 
                 movieArrayAdapter.notifyDataSetChanged(); // rebind to GridView
 
                 movieGridView.smoothScrollToPosition(0); // scroll to top
+
+                favoritesDataSource.close();
             }
         }
     }
@@ -224,11 +227,14 @@ public class MainActivity extends AppCompatActivity {
         // if the user was previously on the favorites selection, update it
         if (displayFavorites) {
             movieList.clear();
+            favoritesDataSource.open();
             movieList.addAll(favoritesDataSource.getAllFavorites());
 
             movieArrayAdapter.notifyDataSetChanged(); // rebind to GridView
 
             movieGridView.smoothScrollToPosition(0); // scroll to top
+
+            favoritesDataSource.close();
         }
     }
 

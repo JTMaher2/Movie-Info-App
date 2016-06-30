@@ -12,7 +12,7 @@
     <string name="runtime">%1$dmin</string>
     <string name="play_button">Play button</string>
     <string name="favorite_button_unpressed">MARK AS FAVORITE</string>
-    <string name="favorite_button_pressed">FAVORITE</string>
+    <string name="favorite_button_pressed">REMOVE FAVORITE</string>
     <string name="title_activity_settings">Settings</string>
     <string name="display_options">Display Options</string>
     <string name="display_options_description">How to display the movies</string>

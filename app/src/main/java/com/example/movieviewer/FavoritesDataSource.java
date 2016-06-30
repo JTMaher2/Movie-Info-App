@@ -54,10 +54,7 @@ public class FavoritesDataSource {
     }
 
     public void deleteFavorite(Movie favorite) {
-        int id = favorite.id;
-        System.out.println("Favorite deleted with id: " + id);
-
-        database.delete(MySQLiteHelper.TABLE_FAVORITES, MySQLiteHelper.COLUMN_ID + " = " + id, null);
+        database.delete(MySQLiteHelper.TABLE_FAVORITES, MySQLiteHelper.COLUMN_ID + " = " + favorite.id, null);
     }
 
     public ArrayList<Movie> getAllFavorites() {

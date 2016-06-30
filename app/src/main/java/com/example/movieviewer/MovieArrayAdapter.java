@@ -30,15 +30,18 @@ class MovieArrayAdapter extends ArrayAdapter<Movie> {
         // get Movie object for this specified GridView position
         Movie movie = getItem(position);
 
-        ViewHolder viewHolder; // object that references grid item's views
+        final ViewHolder viewHolder;
 
         // check for reusable ViewHolder from a GridView item that scrolled offscreen; otherwise,
         // create a new ViewHolder
         if (convertView == null) { // no reusable ViewHolder, so create one
-            viewHolder = new ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
+
             convertView = inflater.inflate(R.layout.grid_item, parent, false);
+
+            viewHolder = new ViewHolder();
             viewHolder.posterImageView = (ImageView) convertView.findViewById(R.id.movieImageView);
+
             convertView.setTag(viewHolder);
         } else { // reuse existing ViewHolder stored as the grid item's tag
             viewHolder = (ViewHolder) convertView.getTag();
