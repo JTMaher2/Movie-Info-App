@@ -3,18 +3,19 @@
 package com.example.movieviewer;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
+import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,7 +30,10 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    private CoordinatorLayout coordinatorLayout;
+    // key for reading data from SharedPreferences
+    public static final String DISPLAY_OPTIONS = "pref_displayOptions";
+
+    public static final String FAVORITES = "Favorites";
 
     // List of Movie objects representing the search query
     private ArrayList<Movie> movieList = new ArrayList<>();
@@ -42,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean displayFavorites;
 
+    private View coordinatorLayout;
+
     // configure Toolbar and GridView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,17 +57,15 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // create RadioGroup to toggle between popular, top-rated, and favorites
-        final RadioGroup displayOptions = (RadioGroup) findViewById(R.id.displayOptions);
+        coordinatorLayout = findViewById(R.id.coordinatorLayout);
 
         // create ArrayAdapter to bind movieList to the movieGridView
         movieArrayAdapter = new MovieArrayAdapter(this, movieList);
 
         movieGridView = (GridView) findViewById(R.id.movieGridView);
 
-        if (movieGridView != null) {
+        if (movieGridView != null)
             movieGridView.setAdapter(movieArrayAdapter);
-        }
 
         movieGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -79,42 +83,36 @@ public class MainActivity extends AppCompatActivity {
         favoritesDataSource = new FavoritesDataSource(MainActivity.this);
         favoritesDataSource.open();
 
-        if (displayOptions != null) {
-            displayOptions.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                    RadioButton selectedButton = (RadioButton) findViewById(i);
-                    URL url;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-                    if (selectedButton != null) {
-                        String buttonText = selectedButton.getText().toString();
+        URL url;
 
-                        if (!buttonText.equals("Favorites")) { // not favorites, so okay to perform JSON request
-                            displayFavorites = false;
+        String displayOption = prefs.getString(DISPLAY_OPTIONS, null);
 
-                            url = createURL(buttonText);
+        if (displayOption != null) {
+            if (!displayOption.equals(FAVORITES)) { // not favorites, so okay to perform JSON request
+                displayFavorites = false;
 
-                            // initiate a GetMovieTask to download movie data from TheMovieDB.org in a
-                            // separate thread
-                            if (url != null) {
-                                GetMovieTask getMovieTask = new GetMovieTask();
-                                getMovieTask.execute(url);
-                            } else
-                                Snackbar.make(coordinatorLayout, R.string.invalid_url, Snackbar.LENGTH_LONG).show();
-                        } else { // favorites, so do not perform JSON request, and instead access the database
-                            displayFavorites = true;
+                url = createURL(displayOption);
 
-                            movieList.clear();
-                            movieList.addAll(favoritesDataSource.getAllFavorites());
-
-                            movieArrayAdapter.notifyDataSetChanged(); // rebind to GridView
-
-                            movieGridView.smoothScrollToPosition(0); // scroll to top
-                        }
-                    }
-
+                // initiate a GetMovieTask to download movie data from TheMovieDB.org in a
+                // separate thread
+                if (url != null) {
+                    GetMovieTask getMovieTask = new GetMovieTask();
+                    getMovieTask.execute(url);
+                } else if (coordinatorLayout != null) {
+                    Snackbar.make(coordinatorLayout, R.string.invalid_url, Snackbar.LENGTH_LONG).show();
                 }
-            });
+            } else { // favorites, so do not perform JSON request, and instead access the database
+                displayFavorites = true;
+
+                movieList.clear();
+                movieList.addAll(favoritesDataSource.getAllFavorites());
+
+                movieArrayAdapter.notifyDataSetChanged(); // rebind to GridView
+
+                movieGridView.smoothScrollToPosition(0); // scroll to top
+            }
         }
     }
 
@@ -141,8 +139,6 @@ public class MainActivity extends AppCompatActivity {
 
     // makes the REST web service call to get movie data
     private class GetMovieTask extends AsyncTask<URL, Void, JSONObject> {
-        final View coordinatorLayout = findViewById(R.id.coordinatorLayout);
-
         @Override
         protected JSONObject doInBackground(URL... params) {
             HttpURLConnection connection = null;
@@ -234,5 +230,30 @@ public class MainActivity extends AppCompatActivity {
 
             movieGridView.smoothScrollToPosition(0); // scroll to top
         }
+    }
+
+    // show menu if app is running on a phone or a portrait-oriented tablet
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // get the device's current orientation
+        int orientation = getResources().getConfiguration().orientation;
+
+        // display the app's menu only in portrait orientation
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            // Inflate the menu; this adds items to the action bar if it is present.
+            getMenuInflater().inflate(R.menu.menu_main, menu);
+            return true;
+        }
+        else
+            return false;
+    }
+
+    // displays the SettingsActivity when running on a phone
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent preferencesIntent = new Intent(this, SettingsActivity.class);
+        startActivity(preferencesIntent);
+
+        return super.onOptionsItemSelected(item);
     }
 }

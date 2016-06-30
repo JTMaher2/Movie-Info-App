@@ -13,30 +13,10 @@
     tools:showIn="@layout/activity_main"
     android:orientation="vertical">
 
-    <RadioGroup
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/displayOptions"
-        android:orientation="horizontal">
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/popularOption"
-            android:text="@string/popular"/>
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/topRatedOption"
-            android:text="@string/top_rated"/>
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/favoriteOption"
-            android:text="@string/favorites"/>
-    </RadioGroup>
+        android:id="@+id/displayInfo" />
 
     <GridView
         android:layout_width="match_parent"

@@ -6,14 +6,15 @@
     <string name="rating">%1$s/10</string>
     <string name="read_error">Unable to read movie data</string>
     <string name="connect_error">Unable to connect to TheMovieDB.org</string>
-    <string name="popular">Popular</string>
-    <string name="top_rated">Top Rated</string>
     <string name="movie_poster">movie poster</string>
     <string name="trailers">Trailers</string>
     <string name="movie_detail_url">http://api.themoviedb.org/3/movie/</string>
     <string name="runtime">%1$dmin</string>
     <string name="play_button">Play button</string>
-    <string name="favorites">Favorites</string>
     <string name="favorite_button_unpressed">MARK AS FAVORITE</string>
     <string name="favorite_button_pressed">FAVORITE</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="display_options">Display Options</string>
+    <string name="display_options_description">How to display the movies</string>
+    <string name="action_settings">Settings</string>
 </resources>

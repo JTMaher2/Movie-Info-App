@@ -5,7 +5,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -37,20 +39,30 @@ public class MovieDetail extends AppCompatActivity {
 
     private FavoritesDataSource dataSource;
 
+    private View coordinatorLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        final View linearLayout = findViewById(R.id.linearLayout);
-
-        // for adding favorites
-        dataSource = new FavoritesDataSource(this);
-        dataSource.open();
-
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_movie_detail);
 
+        coordinatorLayout = findViewById(R.id.coordinatorLayout);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null)
+            supportActionBar.setDisplayHomeAsUpEnabled(true);
+
+        // receive movie data
         Bundle bundle = getIntent().getExtras();
         movie = bundle.getParcelable("com.example.movieviewer.Movie");
+
+        // open database
+        dataSource = new FavoritesDataSource(this);
+        dataSource.open();
 
         // populate screen with movie information
         if (movie != null) {
@@ -71,8 +83,8 @@ public class MovieDetail extends AppCompatActivity {
                 GetMovieDataTask getMovieDetailsTask = new GetMovieDataTask();
                 getMovieDetailsTask.execute(url);
             } else
-                if (linearLayout != null)
-                    Snackbar.make(linearLayout, R.string.invalid_url, Snackbar.LENGTH_LONG).show();
+                if (coordinatorLayout != null)
+                    Snackbar.make(coordinatorLayout, R.string.invalid_url, Snackbar.LENGTH_LONG).show();
 
             TextView ratingTextView = (TextView) findViewById(R.id.ratingTextView);
             if (ratingTextView != null)
@@ -128,8 +140,8 @@ public class MovieDetail extends AppCompatActivity {
                 GetMovieDataTask getMovieTrailersTask = new GetMovieDataTask();
                 getMovieTrailersTask.execute(url);
             } else
-                if (linearLayout != null)
-                    Snackbar.make(linearLayout, R.string.invalid_url, Snackbar.LENGTH_LONG).show();
+                if (coordinatorLayout != null)
+                    Snackbar.make(coordinatorLayout, R.string.invalid_url, Snackbar.LENGTH_LONG).show();
         }
     }
 
