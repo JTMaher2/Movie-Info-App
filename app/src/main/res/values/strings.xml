@@ -14,7 +14,8 @@
     <string name="favorite_button_unpressed">MARK AS FAVORITE</string>
     <string name="favorite_button_pressed">REMOVE FAVORITE</string>
     <string name="title_activity_settings">Settings</string>
-    <string name="display_options">Display Options</string>
+    <string name="display_options">Display</string>
     <string name="display_options_description">How to display the movies</string>
     <string name="action_settings">Settings</string>
+    <string name="pref_display_default">Popular</string>
 </resources>

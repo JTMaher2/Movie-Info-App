@@ -8,6 +8,6 @@
         android:title="@string/display_options"
         android:summary="@string/display_options_description"
         android:persistent="true"
-        android:defaultValue="Popular" />
+        android:defaultValue="@string/pref_display_default" />
 
 </PreferenceScreen>
