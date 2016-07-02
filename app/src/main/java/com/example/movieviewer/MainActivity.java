@@ -90,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
         String displayOption = prefs.getString(DISPLAY_OPTIONS, null);
 
         if (displayOption != null) {
+            getSupportActionBar().setTitle(displayOption); // update title to reflect current display
+
             if (!displayOption.equals(FAVORITES)) { // not favorites, so okay to perform JSON request
                 displayFavorites = false;
 
