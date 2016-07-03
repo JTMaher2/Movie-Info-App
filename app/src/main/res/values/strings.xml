@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MovieViewer</string>
+    <string name="app_name">MovieInfoApp</string>
     <string name="web_service_url">http://api.themoviedb.org/3/movie/</string>
     <string name="invalid_url">Invalid URL</string>
     <string name="movie_image">A graphical representation of the movie</string>
