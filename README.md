@@ -4,10 +4,10 @@ Additionally, this app allows users to mark movies as favorites.
 
 Here are some screenshots:
 
-![popular movies](http://jtmaher2.github.io/MovieInfoApp/screenshots/popular.png)
-![top rated movies](http://jtmaher2.github.io/MovieInfoApp/screenshots/top_rated.png)
-![favorite movies](http://jtmaher2.github.io/MovieInfoApp/screenshots/favorites.png)
-![movie details](http://jtmaher2.github.io/MovieInfoApp/screenshots/details.png)
-![settings](http://jtmaher2.github.io/MovieInfoApp/screenshots/settings.png)
+![popular movies](https://jtmaher2.github.io/Movie-Info-App/screenshots/popular.png)
+![top rated movies](https://jtmaher2.github.io/Movie-Info-App/screenshots/top_rated.png)
+![favorite movies](https://jtmaher2.github.io/Movie-Info-App/screenshots/favorites.png)
+![movie details](https://jtmaher2.github.io/Movie-Info-App/screenshots/details.png)
+![settings](https://jtmaher2.github.io/Movie-Info-App/screenshots/settings.png)
 
 [tmdb]: https://www.themoviedb.org/
